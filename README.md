@@ -1,7 +1,6 @@
 # Learning2Learning (L2L)
 
-### Environment
-<img src="https://github.com/IureRosa/learningVis/blob/main/images/logogit.png" width="160px" align="middle">
+<p align="center"><img src="https://github.com/IureRosa/learningVis/blob/main/images/logogit.png" width="160px"/></p>
 
 ### Abstract
 
