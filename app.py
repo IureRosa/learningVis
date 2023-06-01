@@ -42,7 +42,7 @@ class App:
         title_label.pack()
 
         # Carrega a imagem da logo
-        logo_path = "images/logo.png"  # Caminho para a imagem da logo
+        logo_path = "images/logogit.png"  # Caminho para a imagem da logo
         logo_image = Image.open(logo_path)
         logo_image = logo_image.resize((150, 150))  # Ajusta o tamanho da imagem conforme necessário
         logo_photo = ImageTk.PhotoImage(logo_image)
