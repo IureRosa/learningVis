@@ -92,7 +92,7 @@ def main():
     st.title("Reinforcement Learning Algorithms")
 
     st.sidebar.title("Hyperparameters")
-    env_names = ['LunarLander-v2', 'CartPole-v1', 'FrozenLake-v1', 'FrozenLake8x8-v1']
+    env_names = ['MountainCar-v0', 'CartPole-v1', 'LunarLander-v2', 'FrozenLake-v1', 'FrozenLake-v8']
     env_name = st.sidebar.selectbox("Choose environment", env_names)
 
     max_episodes = st.sidebar.number_input("Max Episodes", value=100)
