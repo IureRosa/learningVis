@@ -1,9 +1,13 @@
 import streamlit as st
 import gym
+import time
+import os
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3 import DDPG, SAC, TD3
+
 
 # Função para treinar os agentes e plotar os resultados
 def train_agents(env_name, max_episodes, ddpg_hyperparams, sac_hyperparams, td3_hyperparams):
@@ -69,6 +73,21 @@ def train_agents(env_name, max_episodes, ddpg_hyperparams, sac_hyperparams, td3_
 
     plt.tight_layout()
     st.pyplot(fig)
+    save_plot_as_png(fig)
+
+def save_plot_as_png(figure):
+    
+    script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
+    parent_directory = "results"
+    sub_directory = f"{script_name}_{timestamp}"
+    directory = os.path.join(parent_directory, sub_directory)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    filename = os.path.join(directory, f"{script_name}_{timestamp}.png")
+    figure.savefig(filename, format='png')
+    plt.close(figure)
+    print(f"Plot saved as {filename}")
 
 # Função para avaliar um agente
 def evaluate_agent(agent, env):
