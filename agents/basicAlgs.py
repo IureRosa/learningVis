@@ -1,7 +1,11 @@
 import streamlit as st
 import gym
+import time
+import os
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
+
 
 # Função para executar o algoritmo Q-learning
 def q_learning(env, alpha, gamma, epsilon, max_episodes):
