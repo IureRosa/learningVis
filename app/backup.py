@@ -43,6 +43,7 @@ class App:
 
         helpmenu = tk.Menu(menu_bar, tearoff=0)
         helpmenu.add_command(label="Common Q&A", command=self.commonQA)
+        helpmenu.add_command(label="Install Dependencies", command=self.install_libraries_from_file("requirements.txt"))
         helpmenu.add_command(label="About", command=self.donothing)
         menu_bar.add_cascade(label="Help", menu=helpmenu)
 
@@ -105,6 +106,25 @@ class App:
 
     def commonQA(self):
         executar()
+
+
+    def install_libraries_from_file(self,file_path):
+        try:
+            with open(file_path, "r") as file:
+                libraries = file.read().splitlines()
+                self.install_libraries(*libraries)
+        except FileNotFoundError:
+            print(f"Arquivo {file_path} não encontrado.")
+
+    def install_libraries(self, *libraries):
+        for library in libraries:
+            try:
+                subprocess.check_call(["pip", "install", library])
+                print(f"{library} instalada com sucesso!")
+            except subprocess.CalledProcessError:
+                print(f"Erro ao instalar {library}.")
+
+
 
     def run(self):
         self.root.mainloop()
