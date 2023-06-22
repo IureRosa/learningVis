@@ -1,6 +1,6 @@
 # Learning2Learning (L2L)
 
-<p align="center"><img src="https://github.com/IureRosa/learningVis/blob/main/images/logogit.png" width="160px"/></p>
+<p align="center"><img src="https://github.com/IureRosa/learningVis/blob/main/images/homev3.png" width="160px"/></p>
 
 ### Abstract
 
