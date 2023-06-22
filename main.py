@@ -1,5 +1,5 @@
 from tkinter import Tk
-from app.app2 import App
+from app.backup import App
 
 def main():
     root = Tk()
