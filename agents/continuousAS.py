@@ -5,6 +5,7 @@ import os
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3 import DDPG, SAC, TD3
 
@@ -73,10 +74,45 @@ def train_agents(env_name, max_episodes, ddpg_hyperparams, sac_hyperparams, td3_
 
     plt.tight_layout()
     st.pyplot(fig)
+
+    # Criando um DataFrame com os resultados
+    results_df = pd.DataFrame({
+        'DDPG Success Rate': ddpg_success_rate,
+        'SAC Success Rate': sac_success_rate,
+        'TD3 Success Rate': td3_success_rate,
+        'DDPG Cumulative Reward': np.cumsum(ddpg_rewards),
+        'SAC Cumulative Reward': np.cumsum(sac_rewards),
+        'TD3 Cumulative Reward': np.cumsum(td3_rewards),
+        'DDPG Average Reward': ddpg_rewards,
+        'SAC Average Reward': sac_rewards,
+        'TD3 Average Reward': td3_rewards
+    })
+
+    # Exibindo a tabela de resultados
+    st.subheader('Tabular Results')
+    st.dataframe(results_df)
+
+    # Salvando a tabela de resultados em um arquivo CSV
+    save_results_as_csv(results_df)
+
+    # Salvando o gráfico como imagem
     save_plot_as_png(fig)
 
+
+def save_results_as_csv(results_df):
+    script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
+    parent_directory = "results"
+    sub_directory = f"{script_name}_{timestamp}"
+    directory = os.path.join(parent_directory, sub_directory)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    filename = os.path.join(directory, f"{script_name}_{timestamp}.csv")
+    results_df.to_csv(filename, index=False)
+    print(f"Results saved as {filename}")
+
+
 def save_plot_as_png(figure):
-    
     script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
     timestamp = time.strftime("%Y%m%d-%H%M%S")
     parent_directory = "results"
@@ -88,6 +124,7 @@ def save_plot_as_png(figure):
     figure.savefig(filename, format='png')
     plt.close(figure)
     print(f"Plot saved as {filename}")
+
 
 # Função para avaliar um agente
 def evaluate_agent(agent, env):
@@ -103,9 +140,10 @@ def evaluate_agent(agent, env):
             episode_success = 1
     return episode_reward, episode_success
 
+
 # Interface do Streamlit
 def main():
-    st.title("Reinforcement Learning Algorithms")
+    st.title("Continuous Action Space Results")
 
     st.sidebar.title("Hyperparameters")
     env_names = ['Pendulum-v1', 'BipedalWalker-v3', 'HalfCheetah-v3']
@@ -148,6 +186,7 @@ def main():
 
     if st.sidebar.button("Train"):
         train_agents(env_name, max_episodes, ddpg_hyperparams, sac_hyperparams, td3_hyperparams)
+
 
 if __name__ == '__main__':
     main()

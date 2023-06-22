@@ -5,6 +5,7 @@ import os
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 # Função para executar o algoritmo Q-learning
@@ -41,6 +42,7 @@ def q_learning(env, alpha, gamma, epsilon, max_episodes):
         success_rate.append(episode_success)
 
     return Q, rewards, success_rate
+
 
 # Função para executar o algoritmo SARSA
 def sarsa(env, alpha, gamma, epsilon, max_episodes):
@@ -84,6 +86,7 @@ def sarsa(env, alpha, gamma, epsilon, max_episodes):
 
     return Q, rewards, success_rate
 
+
 # Função para plotar os resultados
 def plot_results(q_rewards, q_success_rate, sarsa_rewards, sarsa_success_rate):
     fig, axs = plt.subplots(3, 1, figsize=(12, 12))
@@ -111,8 +114,17 @@ def plot_results(q_rewards, q_success_rate, sarsa_rewards, sarsa_success_rate):
     st.pyplot(fig)
     save_plot_as_png(fig)
 
+    # Tabela com resultados numéricos
+    results_data = {
+        'Algorithm': ['Q-learning', 'SARSA'],
+        'Total Rewards': [sum(q_rewards), sum(sarsa_rewards)],
+        'Success Rate': [sum(q_success_rate) / len(q_success_rate), sum(sarsa_success_rate) / len(sarsa_success_rate)]
+    }
+    results_df = pd.DataFrame(results_data)
+    st.write(results_df)
+
+
 def save_plot_as_png(figure):
-    
     script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
     timestamp = time.strftime("%Y%m%d-%H%M%S")
     parent_directory = "results"
@@ -124,6 +136,7 @@ def save_plot_as_png(figure):
     figure.savefig(filename, format='png')
     plt.close(figure)
     print(f"Plot saved as {filename}")
+
 
 # Interface do Streamlit
 def main():
@@ -155,6 +168,7 @@ def main():
 
         # Plot dos resultados
         plot_results(q_rewards, q_success_rate, sarsa_rewards, sarsa_success_rate)
+
 
 if __name__ == '__main__':
     main()
