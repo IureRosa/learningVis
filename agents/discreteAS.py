@@ -4,6 +4,7 @@ import time
 import os
 import sys
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3 import DQN, PPO
@@ -75,10 +76,41 @@ def train_agents(env_name, max_episodes, dqn_hyperparams, ppo_hyperparams):
 
     plt.tight_layout()
     st.pyplot(fig)
+
+    # Criando um DataFrame com os resultados
+    results_df = pd.DataFrame({
+        'Episode': np.arange(1, max_episodes + 1),
+        'DQN Reward': dqn_rewards,
+        'DQN Success Rate': dqn_success_rate,
+        'DQN Average Reward': dqn_avg_rewards,
+        'PPO Reward': ppo_rewards,
+        'PPO Success Rate': ppo_success_rate,
+        'PPO Average Reward': ppo_avg_rewards
+    })
+
+    # Exibindo a tabela de resultados
+    st.write("Tabular Results")
+    st.dataframe(results_df)
+
+    # Salvando os resultados em um arquivo CSV
+    save_results_as_csv(results_df)
+
+    # Salvando o gráfico como imagem PNG
     save_plot_as_png(fig)
 
+def save_results_as_csv(results_df):
+    script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
+    parent_directory = "results"
+    sub_directory = f"{script_name}_{timestamp}"
+    directory = os.path.join(parent_directory, sub_directory)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    filename = os.path.join(directory, f"{script_name}_{timestamp}.csv")
+    results_df.to_csv(filename, index=False)
+    print(f"Results saved as {filename}")
+
 def save_plot_as_png(figure):
-    
     script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
     timestamp = time.strftime("%Y%m%d-%H%M%S")
     parent_directory = "results"
@@ -107,7 +139,7 @@ def evaluate_agent(agent, env):
 
 # Interface do Streamlit
 def main():
-    st.title("Reinforcement Learning Algorithms")
+    st.title("Discrete Action Space Results")
 
     st.sidebar.title("Hyperparameters")
     env_names = ['MountainCar-v0', 'CartPole-v1', 'LunarLander-v2', 'FrozenLake-v1', 'FrozenLake-v8']

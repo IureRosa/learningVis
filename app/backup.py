@@ -17,7 +17,7 @@ class App:
         self.root.resizable(False, False)
 
             # Define a imagem da logo como ícone do aplicativo
-        logo_path = "images/logov2.png"
+        logo_path = "images/icon.png"
         logo_image = Image.open(logo_path)
         logo_photo = ImageTk.PhotoImage(logo_image)
         self.root.iconphoto(True, logo_photo)
@@ -64,7 +64,7 @@ class App:
         bottom_frame = tk.Frame(self.root)
         bottom_frame.place(x=600,y=450,width=200,height=40)
 
-        files = ["agents/basicAlgs.py", "agents/continuousAS.py", "agents/discreteAS.py"]
+        files = ["agents/basicAlgs.py", "agents/teste.py", "agents/discreteAS.py"]
         button_names = ["Q-Learning/SARSA", "TD3/DDPG/SAC", "PPO and DQN"]
 
         labelRun = tk.Label(self.root, text="Run ML Algorithms").place(
@@ -82,14 +82,17 @@ class App:
             button.pack(pady=5)
 
         for i, (file, button_name) in enumerate(zip(files, button_names), start=1):
+            runner = CodeRunner(file)
+            self.runners.append(runner)
+            
             stop_button = ttk.Button(right_frame, text=button_name, command=runner.stop, width=20)
             stop_button.pack(pady=5)
 
-        stop_all_button = ttk.Button(bottom_frame, text="Quit", command=self.root.quit)
-        stop_all_button.pack(side=tk.RIGHT, padx=5)
-
-        close_button = ttk.Button(bottom_frame, text="Stop All", command=self.stop_all)
+        close_button = ttk.Button(bottom_frame, text="Quit", command=self.root.quit)
         close_button.pack(side=tk.RIGHT, padx=5)
+
+        stop_all_button = ttk.Button(bottom_frame, text="Stop All", command=self.stop_all)
+        stop_all_button.pack(side=tk.RIGHT, padx=5)
 
     def stop_all(self):
         stopped_runners = 0

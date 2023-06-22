@@ -5,13 +5,24 @@ import os
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3 import DDPG, SAC, TD3
-
+from stable_baselines3.common.monitor import Monitor
+from gym.wrappers import Monitor as GymMonitor
+from pathlib import Path
+import base64
+import pybullet as p
 
 # Função para treinar os agentes e plotar os resultados
-def train_agents(env_name, max_episodes, ddpg_hyperparams, sac_hyperparams, td3_hyperparams):
+def train_agents(env_name, max_episodes, ddpg_hyperparams, sac_hyperparams, td3_hyperparams, record_video=True):
     env = gym.make(env_name)
+    
+    if record_video:
+        video_path = Path("videos")
+        video_path.mkdir(exist_ok=True)
+        env = GymMonitor(env, video_path, force=True)
+
     env = DummyVecEnv([lambda: env])
 
     # Criando os agentes
@@ -73,10 +84,49 @@ def train_agents(env_name, max_episodes, ddpg_hyperparams, sac_hyperparams, td3_
 
     plt.tight_layout()
     st.pyplot(fig)
+
+    # Criando um DataFrame com os resultados
+    results_df = pd.DataFrame({
+        'DDPG Success Rate': ddpg_success_rate,
+        'SAC Success Rate': sac_success_rate,
+        'TD3 Success Rate': td3_success_rate,
+        'DDPG Cumulative Reward': np.cumsum(ddpg_rewards),
+        'SAC Cumulative Reward': np.cumsum(sac_rewards),
+        'TD3 Cumulative Reward': np.cumsum(td3_rewards),
+        'DDPG Average Reward': ddpg_rewards,
+        'SAC Average Reward': sac_rewards,
+        'TD3 Average Reward': td3_rewards
+    })
+
+    # Exibindo a tabela de resultados
+    st.subheader('Tabular Results')
+    st.dataframe(results_df)
+
+    # Salvando a tabela de resultados em um arquivo CSV
+    save_results_as_csv(results_df)
+
+    # Salvando o gráfico como imagem
     save_plot_as_png(fig)
 
+    # Salvando o vídeo do treinamento
+    if record_video:
+        save_video_as_mp4(video_path)
+
+
+def save_results_as_csv(results_df):
+    script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
+    parent_directory = "results"
+    sub_directory = f"{script_name}_{timestamp}"
+    directory = os.path.join(parent_directory, sub_directory)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    filename = os.path.join(directory, f"{script_name}_{timestamp}.csv")
+    results_df.to_csv(filename, index=False)
+    print(f"Results saved as {filename}")
+
+
 def save_plot_as_png(figure):
-    
     script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
     timestamp = time.strftime("%Y%m%d-%H%M%S")
     parent_directory = "results"
@@ -88,6 +138,18 @@ def save_plot_as_png(figure):
     figure.savefig(filename, format='png')
     plt.close(figure)
     print(f"Plot saved as {filename}")
+
+
+def save_video_as_mp4(video_path):
+    video_files = list(video_path.glob("*.mp4"))
+    if len(video_files) > 0:
+        video_file = video_files[0]
+        with open(video_file, "rb") as file:
+            video_bytes = file.read()
+            b64_video = base64.b64encode(video_bytes).decode()
+            st.video(f"data:video/mp4;base64,{b64_video}")
+        print(f"Video saved as {video_file}")
+
 
 # Função para avaliar um agente
 def evaluate_agent(agent, env):
@@ -103,9 +165,10 @@ def evaluate_agent(agent, env):
             episode_success = 1
     return episode_reward, episode_success
 
+
 # Interface do Streamlit
 def main():
-    st.title("Reinforcement Learning Algorithms")
+    st.title("Continuous Action Space Results")
 
     st.sidebar.title("Hyperparameters")
     env_names = ['Pendulum-v1', 'BipedalWalker-v3', 'HalfCheetah-v3']
@@ -146,8 +209,11 @@ def main():
         'target_noise_clip': st.sidebar.number_input("TD3 Target Noise Clip", value=0.5)
     }
 
+    record_video = st.sidebar.checkbox("Record Training Video")
+
     if st.sidebar.button("Train"):
-        train_agents(env_name, max_episodes, ddpg_hyperparams, sac_hyperparams, td3_hyperparams)
+        train_agents(env_name, max_episodes, ddpg_hyperparams, sac_hyperparams, td3_hyperparams, record_video)
+
 
 if __name__ == '__main__':
     main()

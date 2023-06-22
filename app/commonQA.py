@@ -104,4 +104,4 @@ def executar():
     # Iniciar loop da janela
     root2.mainloop()
 
-#executar()
+executar()
