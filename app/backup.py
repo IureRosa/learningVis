@@ -64,7 +64,7 @@ class App:
         bottom_frame = tk.Frame(self.root)
         bottom_frame.place(x=600,y=450,width=200,height=40)
 
-        files = ["agents/basicAlgs.py", "agents/continuousAS.py", "agents/discreteAS.py"]
+        files = ["agents/basicAlgs.py", "agents/teste.py", "agents/discreteAS.py"]
         button_names = ["Q-Learning/SARSA", "TD3/DDPG/SAC", "PPO and DQN"]
 
         labelRun = tk.Label(self.root, text="Run ML Algorithms").place(

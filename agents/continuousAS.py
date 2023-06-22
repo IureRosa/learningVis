@@ -8,11 +8,21 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3 import DDPG, SAC, TD3
-
+from stable_baselines3.common.monitor import Monitor
+from gym.wrappers import Monitor as GymMonitor
+from pathlib import Path
+import base64
+import pybullet as p
 
 # Função para treinar os agentes e plotar os resultados
-def train_agents(env_name, max_episodes, ddpg_hyperparams, sac_hyperparams, td3_hyperparams):
+def train_agents(env_name, max_episodes, ddpg_hyperparams, sac_hyperparams, td3_hyperparams, record_video=True):
     env = gym.make(env_name)
+    
+    if record_video:
+        video_path = Path("videos")
+        video_path.mkdir(exist_ok=True)
+        env = GymMonitor(env, video_path, force=True)
+
     env = DummyVecEnv([lambda: env])
 
     # Criando os agentes
@@ -98,6 +108,10 @@ def train_agents(env_name, max_episodes, ddpg_hyperparams, sac_hyperparams, td3_
     # Salvando o gráfico como imagem
     save_plot_as_png(fig)
 
+    # Salvando o vídeo do treinamento
+    if record_video:
+        save_video_as_mp4(video_path)
+
 
 def save_results_as_csv(results_df):
     script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
@@ -124,6 +138,17 @@ def save_plot_as_png(figure):
     figure.savefig(filename, format='png')
     plt.close(figure)
     print(f"Plot saved as {filename}")
+
+
+def save_video_as_mp4(video_path):
+    video_files = list(video_path.glob("*.mp4"))
+    if len(video_files) > 0:
+        video_file = video_files[0]
+        with open(video_file, "rb") as file:
+            video_bytes = file.read()
+            b64_video = base64.b64encode(video_bytes).decode()
+            st.video(f"data:video/mp4;base64,{b64_video}")
+        print(f"Video saved as {video_file}")
 
 
 # Função para avaliar um agente
@@ -184,8 +209,10 @@ def main():
         'target_noise_clip': st.sidebar.number_input("TD3 Target Noise Clip", value=0.5)
     }
 
+    record_video = st.sidebar.checkbox("Record Training Video")
+
     if st.sidebar.button("Train"):
-        train_agents(env_name, max_episodes, ddpg_hyperparams, sac_hyperparams, td3_hyperparams)
+        train_agents(env_name, max_episodes, ddpg_hyperparams, sac_hyperparams, td3_hyperparams, record_video)
 
 
 if __name__ == '__main__':

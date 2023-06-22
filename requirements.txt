@@ -1,2 +1,3 @@
 openai
 stable-baselines3
+pybullet
